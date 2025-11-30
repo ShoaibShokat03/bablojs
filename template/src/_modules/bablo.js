@@ -489,9 +489,12 @@ function flushRender() {
     const [container, renderFn] = entries[i];
     try {
       resetStateCursor();
-      
+
+      const newHrefShort=window.location.href.replace(babloApp.baseUrl, "").replace("?", "-").replace("=", "-");
+
       // Set component index for hooks to identify which component is rendering
-      const componentId = renderFn.name || `component-${i}`;
+      const componentId = newHrefShort.replaceAll("/", "-") + "-" + (renderFn.name || `component-${i}`).toLowerCase();
+
       babloApp.appState.set("render-component-index", componentId);
 
       if (!container) continue;

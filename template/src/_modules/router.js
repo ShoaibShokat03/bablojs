@@ -29,31 +29,29 @@ const notFound = () => {
   );
 }
 
-const errorPage = (routerInstance, error) => {
-  return () => {
-    return Div(
-      {
-        style: "width: 100%, height: 100vh, display: flex, justifyContent: center, alignItems: center, backgroundColor: '#f8f9fa'",
-      },
-      Div(
-        { style: "text-align: center; color: #721c24;" },
-        H1(
-          {
-            style: "font-size: 3rem; font-weight: 700; margin-bottom: 1rem;",
-          },
-          "Error"
-        ),
-        P({ style: "font-size: 1.1rem;" }, error),
-        A(
-          {
-            href: requests.url("/"),
-            style: " margin-top: 1rem; color: #007bff; text-decoration: none;",
-          },
-          "Go Home"
-        )
+const errorPage = (error) => {
+  return Div(
+    {
+      style: "width: 100%; height: 100vh; display: flex; justify-content: center; align-items: center; background-color: #f8f9fa;"
+    },
+    Div(
+      { style: "text-align: center; color: #343a40;" },
+      H1(
+        {
+          style: "font-size: 3rem; font-weight: 700; margin-bottom: 1rem;",
+        },
+        "Error"
+      ),
+      P({ style: "font-size: 1.1rem;" }, error),
+      A(
+        {
+          href: requests.url("/"),
+          style: " margin-top: 1rem; color: #007bff; text-decoration: none;",
+        },
+        "Go Home"
       )
-    );
-  }
+    )
+  );
 }
 
 const unauthorized = () =>
@@ -99,11 +97,11 @@ function setPageProps(routeObj) {
 
   // fallback checks meta, direct, app config, then globally defined (if any), then fallbackVal, empty
   const fallback = (k, fallbackVal) =>
-    (routeObj?.meta && routeObj.meta[k] != null ? routeObj.meta[k]
-      : (routeObj[k] != null ? routeObj[k]
+  (routeObj?.meta && routeObj.meta[k] != null ? routeObj.meta[k]
+    : (routeObj[k] != null ? routeObj[k]
       : (babloApp?.app && babloApp.app[k] != null ? babloApp.app[k]
-      : (babloApp && babloApp[k] != null ? babloApp[k]
-      : fallbackVal ?? ""))));
+        : (babloApp && babloApp[k] != null ? babloApp[k]
+          : fallbackVal ?? ""))));
 
   const metaTags = {
     title: fallback("title", babloApp?.app?.name),
@@ -221,6 +219,16 @@ export class Router {
       : requests.url(route);
     window.history.pushState({}, "", newRoute);
     //console.log("Pushed to history:", newRoute);
+
+    // Update babloApp location properties
+    babloApp.href = window.location.href;
+    babloApp.pathname = window.location.pathname;
+    babloApp.search = window.location.search;
+    babloApp.hash = window.location.hash;
+
+    // Dispatch custom event for route change
+    window.dispatchEvent(new CustomEvent('routechange', { detail: { route: newRoute } }));
+
     await this.route(newRoute);
     return newRoute;
   }
@@ -246,32 +254,36 @@ export class Router {
 
   async route(route = null, component = null) {
     try {
+      babloApp.appState.clear();
+      babloApp.appState.clear();
+
       let cleanRoute = route;
       if (!route) {
         // get befor first ? mark
         route = babloApp.href;
       }
-      route = route.split("?")[0];
-      cleanRoute = route.replace(requests.url(""), "").toLowerCase() || "/";
-      babloApp.appState.clear();
+      cleanRoute = route.replace(babloApp.baseUrl, "").toLowerCase() || "/";
+
       if (cleanRoute.endsWith("/") && cleanRoute.length > 1) {
         cleanRoute = "/" + cleanRoute.slice(0, -1);
       }
       if (!cleanRoute.startsWith("/")) {
         cleanRoute = "/" + cleanRoute;
       }
-      if (route.startsWith("/") && !route.startsWith(requests.url(""))) {
+      if (route.startsWith("/") && !route.startsWith(babloApp.baseUrl)) {
         cleanRoute = route;
       }
-      console.log("cleanRoute", babloApp.routes[cleanRoute]);
+      cleanRoute = cleanRoute.includes("?") ? cleanRoute.split("?")[0] : cleanRoute;
+      if (babloApp.routes) {
+        this.routes = babloApp.routes;
+      }
 
-      let routeObj = babloApp.routes[cleanRoute];
+      let routeObj = this.routes[cleanRoute];
       if (!routeObj && !component) {
         setPageProps({ title: "404 - Page Not Found", description: "" });
         return render(notFound, babloApp.root);
       }
 
-      console.log("Route Object:", routeObj);
 
       if (component && typeof component === "function") {
         setPageProps({ title: "Component", description: "" });
@@ -323,12 +335,21 @@ export class Router {
       console.error("Error loading route:", error);
       setPageProps({ title: "Error", description: "" });
       babloApp.root.innerHTML = "";
-      render(errorPage(this, error.toString()), babloApp.root);
+      render(() => errorPage(error.toString()), babloApp.root);
     }
   }
 
   routeNavigator() {
     window.addEventListener("popstate", () => {
+      // Update babloApp location properties on popstate
+      babloApp.href = window.location.href;
+      babloApp.pathname = window.location.pathname;
+      babloApp.search = window.location.search;
+      babloApp.hash = window.location.hash;
+
+      // Dispatch custom event for route change
+      window.dispatchEvent(new CustomEvent('routechange', { detail: { route: window.location.pathname } }));
+
       this.navigate(requests.windowGetHref());
     });
 

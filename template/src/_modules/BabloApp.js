@@ -43,7 +43,6 @@ class BabloApp {
         this.state.clear();
     }
     init(config = null) {
-        console.log(config);
         this.config = config;
         const root = document.getElementById("root");
         if (root) {

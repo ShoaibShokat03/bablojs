@@ -11,14 +11,11 @@ let refCursor = 0;
 let effects = [];
 let memoCache = [];
 let refs = [];
-
 /* ---------- useState ---------- */
 export function useState(initialValue) {
   const index = stateCursor++;
   const compKey = babloApp.appState.get("render-component-index");
   const key = `state-${compKey}-${index}`;
-  // console.log("compKey", compKey);
-  // console.log("key", key);
 
   if (!babloApp.appState.has(key)) {
     babloApp.appState.set(key, initialValue);
@@ -49,7 +46,7 @@ export function resetStateCursor() {
 
   effects = [];
   memoCache = [];
-  refs = [];
+  // Note: refs are now stored in appState, so we don't reset them here
 }
 
 /* ---------- useEffect ---------- */
@@ -80,10 +77,14 @@ export function useEffect(callback, dependencies) {
 /* ---------- useRef ---------- */
 export function useRef(initialValue) {
   const index = refCursor++;
-  if (!refs[index]) {
-    refs[index] = { current: initialValue };
+  const compKey = babloApp.appState.get("render-component-index") || "default";
+  const key = `ref-${compKey}-${index}`;
+  
+  // Refs should persist across renders, so store in appState
+  if (!babloApp.appState.has(key)) {
+    babloApp.appState.set(key, { current: initialValue });
   }
-  return refs[index];
+  return babloApp.appState.get(key);
 }
 
 /* ---------- useMemo ---------- */
@@ -100,6 +101,7 @@ export function useMemo(factory, dependencies) {
   const { value, deps } = cache;
   const hasChanged =
     !deps ||
+    !dependencies ||
     dependencies.length !== deps.length ||
     dependencies.some((d, i) => d !== deps[i]);
 
@@ -122,7 +124,7 @@ function scheduleUpdate() {
       const comp = babloApp.componentState.get("renderd-state");
       if (comp) {
         resetStateCursor();
-        render(comp, babloApp.app.root);
+        render(comp, babloApp.root);
         runEffects();
       }
     });
