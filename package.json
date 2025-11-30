@@ -1,13 +1,15 @@
 {
     "name": "create-bablojs",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "type": "module",
     "bin": {
-      "create-bablojst": "./index.js"
+        "create-bablojst": "./index.js"
     },
     "scripts": {
-      "start": "node index.js"
+        "start": "node index.js"
     },
-    "files": ["index.js", "template/**/*"]
-  }
-  
+    "files": [
+        "index.js",
+        "template/**/*"
+    ]
+}
