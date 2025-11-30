@@ -1,6 +1,30 @@
 # BABLOJS - Vanilla JavaScript SPA Framework
 
+[![npm version](https://img.shields.io/npm/v/bablojs.svg)](https://www.npmjs.com/package/bablojs)
+[![npm downloads](https://img.shields.io/npm/dm/bablojs.svg)](https://www.npmjs.com/package/bablojs)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A lightweight, fast, and scalable Single Page Application framework built with vanilla JavaScript. BABLOJS provides React-like features including Virtual DOM, hooks, routing, and component-based architecture without the overhead of external dependencies.
+
+## 📦 Installation
+
+### Install via npm
+
+```bash
+npm install bablojs
+```
+
+### Install via yarn
+
+```bash
+yarn add bablojs
+```
+
+### Install via pnpm
+
+```bash
+pnpm add bablojs
+```
 
 ## 📖 Table of Contents
 
@@ -16,6 +40,8 @@ A lightweight, fast, and scalable Single Page Application framework built with v
 - [Use Cases](#use-cases)
 - [API Reference](#api-reference)
 - [Best Practices](#best-practices)
+- [Advanced Topics](#advanced-topics)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -112,14 +138,28 @@ DOM Update → Cleanup (if needed)
 
 Here's a comprehensive breakdown of every file and folder in BABLOJS:
 
+### When Installed via npm
+
+After installing `bablojs` via npm, your project structure should look like this:
+
 ```
-bablojs-app/
+my-project/
 │
-├── index.html                    # Entry HTML file - loads main.js as ES6 module
+├── node_modules/
+│   └── bablojs/                  # BABLOJS package
+│       ├── index.html
+│       ├── package.json
+│       ├── README.md
+│       └── src/
+│           └── _modules/         # Core framework modules
+│
+├── index.html                    # Your entry HTML file (copy from bablojs)
 │
 ├── src/
 │   │
+│   │
 │   ├── _modules/                 # Core Framework Modules (The Engine)
+│   │   │                         # Copy from node_modules/bablojs/src/_modules/
 │   │   │
 │   │   ├── bablo.js             # Virtual DOM implementation
 │   │   │                         # - Creates virtual nodes
@@ -342,51 +382,129 @@ bablojs-app/
 └── README.md                      # This file
 ```
 
+### Package Structure (npm)
+
+When you install BABLOJS via npm, the package structure is:
+
+```
+node_modules/bablojs/
+│
+├── index.html                    # Entry HTML file - loads main.js as ES6 module
+├── package.json                  # Package configuration
+├── README.md                     # This documentation
+│
+└── src/
+    │
+    └── _modules/                  # Core Framework Modules (The Engine)
+        │
+        ├── bablo.js              # Virtual DOM implementation
+        ├── hooks.js              # React-like Hooks System
+        ├── html.js               # HTML Element Factories
+        ├── router.js             # Routing System
+        ├── requests.js           # URL and Request Utilities
+        ├── storage.js            # Local Storage Wrapper
+        ├── BabloApp.js           # Main Application Class
+        ├── Events.js             # Event System
+        ├── document.events.js    # Document Event Helpers
+        ├── babloHttp.js          # BabloHttp - Unique HTTP Client
+        ├── forms.js              # Form Utilities
+        ├── helpers.js            # General Utilities
+        ├── style.js              # Dynamic Styling
+        ├── time.js               # Time Utilities
+        ├── logger.js             # Logging System
+        ├── icons.js              # Icon Utilities
+        └── symboles.js           # Symbol Constants
+```
+
 ---
 
 ## Installation & Setup
 
 ### Prerequisites
 
+- Node.js 14.0.0 or higher (for npm installation)
 - A modern web browser (Chrome, Firefox, Safari, Edge)
 - A local web server (required for ES6 modules)
 
-### Step 1: Download/Clone
+### Method 1: Install via npm (Recommended)
 
-   ```bash
-git clone <repository-url>
-cd bablojs-app
+**Step 1: Install the package**
+
+```bash
+npm install bablojs
 ```
 
-### Step 2: Start Local Server
+**Step 2: Copy files to your project**
+
+After installation, copy the necessary files from `node_modules/bablojs/` to your project root:
+
+```bash
+# Copy index.html
+cp node_modules/bablojs/index.html .
+
+# Copy src directory
+cp -r node_modules/bablojs/src ./src
+```
+
+Or manually copy:
+- `index.html` → your project root
+- `src/` → your project root
+
+**Step 3: Start Local Server**
 
 ES6 modules require a server (CORS restrictions). Choose one:
 
-**Option A: PHP Built-in Server**
+**Option A: Using npm scripts (if included)**
 ```bash
-   php -S localhost:8000
+npm start
+# or
+npm run dev
 ```
-   
+
 **Option B: Node.js Serve**
 ```bash
-   npx serve .
+npx serve .
 ```
-   
-**Option C: Python HTTP Server**
-```bash
-   python -m http.server 8000
-   ```
 
-**Option D: VS Code Live Server**
+**Option C: PHP Built-in Server**
+```bash
+php -S localhost:8000
+```
+
+**Option D: Python HTTP Server**
+```bash
+python -m http.server 8000
+```
+
+**Option E: VS Code Live Server**
 - Install "Live Server" extension
 - Right-click `index.html` → "Open with Live Server"
 
-### Step 3: Access Application
+**Step 4: Access Application**
 
 Open your browser and navigate to:
-   ```
-   http://localhost:8000
-   ```
+```
+http://localhost:8000
+```
+
+### Method 2: Clone from GitHub
+
+**Step 1: Clone the repository**
+
+```bash
+git clone https://github.com/ShoaibShokat03/bablojs.git
+cd bablojs
+```
+
+**Step 2: Start Local Server**
+
+Follow the same server options as Method 1, Step 3.
+
+### Method 3: Download and Extract
+
+1. Download the latest release from [GitHub Releases](https://github.com/ShoaibShokat03/bablojs/releases)
+2. Extract the files
+3. Follow server setup instructions above
 
 ---
 
@@ -715,7 +833,26 @@ Component uses useState
 
 ## Quick Start Guide
 
-### Step 1: Create a Component
+### Step 1: Install BABLOJS
+
+```bash
+npm install bablojs
+```
+
+### Step 2: Set Up Your Project Structure
+
+```
+my-bablojs-app/
+├── index.html          # Copy from node_modules/bablojs/
+├── src/
+│   ├── _modules/       # Framework core (from bablojs package)
+│   ├── app/            # Your app configuration
+│   ├── routes/         # Your routes
+│   └── views/          # Your components
+└── package.json
+```
+
+### Step 3: Create a Component
 
 ```javascript
 // src/views/MyPage.js
@@ -737,12 +874,12 @@ export default function MyPage() {
 }
 ```
 
-### Step 2: Add Route
+### Step 4: Add Route
 
 ```javascript
-// src/routes/routes.js
+// src/app/routes/routes.js
 const components = {
-  MyPage: () => import("../views/MyPage.js"),
+  MyPage: () => import("../../views/MyPage.js"),
 };
 
 const routes = {
@@ -758,7 +895,42 @@ const routes = {
 export default routes;
 ```
 
-### Step 3: Navigate to Route
+### Step 5: Configure Your App
+
+```javascript
+// src/app/config/config.js
+import appConfig from "./app.js";
+import authConfig from "./auth.js";
+// ... other configs
+
+export default {
+  app: appConfig,
+  auth: authConfig,
+  // ... other configs
+};
+```
+
+### Step 6: Initialize Your App
+
+```javascript
+// src/app/load/main.js
+import { documentEvents } from "../../_modules/document.events.js";
+import { babloApp } from "../../_modules/BabloApp.js";
+import Config from "../config/config.js";
+import { router } from "../../_modules/router.js";
+import routes from "../routes/routes.js";
+
+const app = babloApp;
+app.init(Config);
+app.routes = routes;
+router.init();
+
+documentEvents.onDomContentLoaded(async () => {
+  router.route();
+});
+```
+
+### Step 7: Navigate to Route
 
 ```javascript
 // In any component
@@ -774,6 +946,14 @@ A({ href: requests.url("/my-page") }, "Go to My Page");
 
 // Option 3: Button with route attribute
 Button({ route: "/my-page" }, "Navigate");
+```
+
+### Step 8: Start Development Server
+
+```bash
+npm start
+# or
+npx serve .
 ```
 
 That's it! Your component is now accessible at `/my-page`.
@@ -1203,6 +1383,85 @@ For questions, issues, or contributions:
 
 ---
 
+## 📚 Additional Resources
+
+- **GitHub Repository**: [https://github.com/ShoaibShokat03/bablojs](https://github.com/ShoaibShokat03/bablojs)
+- **npm Package**: [https://www.npmjs.com/package/bablojs](https://www.npmjs.com/package/bablojs)
+- **Issues**: [https://github.com/ShoaibShokat03/bablojs/issues](https://github.com/ShoaibShokat03/bablojs/issues)
+
+## 🎯 Getting Started with npm Package
+
+If you installed BABLOJS via npm, here's a quick example of how to use it:
+
+```javascript
+// Import BABLOJS modules
+import { render, createElement } from './src/_modules/bablo.js';
+import { useState, useEffect } from './src/_modules/hooks.js';
+import { Div, H1, Button } from './src/_modules/html.js';
+import { router } from './src/_modules/router.js';
+
+// Create a simple component
+function App() {
+  const [count, setCount] = useState(0);
+  
+  useEffect(() => {
+    console.log('Component mounted!');
+  }, []);
+  
+  return Div(
+    { class: "app" },
+    H1({}, "Welcome to BABLOJS"),
+    Div({}, `Count: ${count}`),
+    Button(
+      { onclick: () => setCount(count + 1) },
+      "Click Me"
+    )
+  );
+}
+
+// Render the app
+render(App, document.getElementById('app'));
+```
+
+## 📝 Version History
+
+- **1.0.0** - Initial release
+  - Virtual DOM implementation
+  - React-like hooks system
+  - Routing system
+  - Component-based architecture
+  - BabloHttp HTTP client
+  - Zero dependencies
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](https://github.com/ShoaibShokat03/bablojs/blob/main/CONTRIBUTING.md) for details.
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👤 Author
+
+**Shoaib Shokat**
+
+- Email: shoaibshokat6@gmail.com
+- GitHub: [@ShoaibShokat03](https://github.com/ShoaibShokat03)
+
+## 🙏 Acknowledgments
+
+- Inspired by React's component model and hooks API
+- Built with modern JavaScript (ES6+)
+- Zero external dependencies for maximum performance
+
+---
+
 **BABLOJS** - Building fast, scalable SPAs with vanilla JavaScript! 🚀
-"# bablojs" 
-"# bablojs" 
+
+Made with ❤️ by the BABLOJS community 
