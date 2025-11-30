@@ -2,7 +2,7 @@
 // Improvements: pooling optional, proper cleanup (listeners & vnode), robust keyed reconciliation,
 // reorder checks use isSameNode, style handling fixed, no unnecessary insertBefore churn.
 
-import Config from "../app/config/config.js";
+import { babloApp } from "./BabloApp.js";
 import { resetStateCursor, runEffects } from "./hooks.js";
 
 /* ---------- Config Flags ---------- */
@@ -489,7 +489,12 @@ function flushRender() {
     const [container, renderFn] = entries[i];
     try {
       resetStateCursor();
+      
+      // Set component index for hooks to identify which component is rendering
+      const componentId = renderFn.name || `component-${i}`;
+      babloApp.appState.set("render-component-index", componentId);
 
+      if (!container) continue;
       const oldVNode = container.__vnode || null;
       const newVNode = renderFn();
 
@@ -521,7 +526,7 @@ function flushRender() {
 
       // lifecycle
       runEffects();
-      Config.componentState.set("renderd-state", renderFn);
+      babloApp.componentState.set("renderd-state", renderFn);
     } catch (err) {
       console.error("Render Error:", err, container);
     }
@@ -529,6 +534,7 @@ function flushRender() {
 }
 
 export function render(renderFn, container) {
+
   renderQueue.set(container, renderFn);
   if (!scheduled) {
     scheduled = true;

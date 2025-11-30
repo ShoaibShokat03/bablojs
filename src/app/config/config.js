@@ -1,39 +1,26 @@
-import routes from "../routes/routes.js";
-import { api } from "../../services/api.js";
-import { app } from "./app.js";
-import { roles } from "./roles.js";
-import { session } from "./session.js";
-import { storage } from "../../_modules/storage.js";
-import { theme } from "./theme.js";
-import constants from "./constants.js";
-import services from "./services.js";
-import { babloApp } from "../../_modules/BabloApp.js";
+import time from "../../_modules/time.js";
 
 const Config = {
-  // App State Management
-  registeredComponents: {}, // Use Map for better performance with large state
-  componentState: new Map(), // Use Map for better performance with large state
-  appState: new Map(), // Use Map for better performance with large state
-  webpCache: new Map(),
-  appCache: new Set(), // Use Set for unique entries
-  routes,
 
-  // App Configuration
-  app: app,
-  // Theme Configuration
-  theme: theme,
-  // Session Configuration
-  session: session,
-  // Roles Configuration
-  roles: roles,
-  // Storage Configuration
-  storage: storage,
-
-  // constants Configuration
-  constants: constants,
-
-  // Services Configuration
-  services: services,
+  app: {
+    name: "BABLOjS",
+    tagline: "Vanilla JavaScript SPA Framework",
+    version: "1.0.0",
+    keywords: "bablojs, bablo, javascript framework, frontend, spa",
+    description: "A lightweight, fast, and scalable Single Page Application framework built with vanilla JavaScript. BABLOJS provides React-like features including Virtual DOM, hooks, routing, and component-based architecture without the overhead of external dependencies.",
+    robots: "index, follow",
+    author: "BabloJS",
+    license: "MIT",
+    ogImage: "/images/bablojs.png",
+    twitterImage: "/images/bablojs.png",
+    twitterTitle: "BabloJS",
+    twitterDescription: "A lightweight, fast, and scalable Single Page Application framework built with vanilla JavaScript. BABLOJS provides React-like features including Virtual DOM, hooks, routing, and component-based architecture without the overhead of external dependencies.",
+    twitterCard: "summary_large_image",
+    twitterUrl: "https://bablojs.com",
+    twitterSite: "https://bablojs.com",
+    twitterCreator: "https://bablojs.com",
+    twitterDomain: "https://bablojs.com",
+  },
 };
 
 export default Config;

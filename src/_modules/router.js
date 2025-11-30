@@ -1,12 +1,8 @@
+import Home from "../views/Home.js";
 import { render } from "./bablo.js";
 import { babloApp } from "./BabloApp.js";
 import { A, Button, Div, H1, P, Strong } from "./html.js";
 import { requests } from "./requests.js";
-
-const isAuthenticated = () =>
-  babloApp.config.storage.get(babloApp.config.session.userProfile) !== null;
-const getUserRole = () =>
-  babloApp.config.storage.get(babloApp.config.session.userRoleKey) || "guest";
 
 const notFound = () => {
   return Div(
@@ -34,28 +30,30 @@ const notFound = () => {
 }
 
 const errorPage = (routerInstance, error) => {
-  return Div(
-    {
-      style: "width: 100%, height: 100vh, display: flex, justifyContent: center, alignItems: center, backgroundColor: '#f8f9fa'",
-    },
-    Div(
-      { style: "text-align: center; color: #721c24;" },
-      H1(
-        {
-          style: "font-size: 3rem; font-weight: 700; margin-bottom: 1rem;",
-        },
-        "Error"
-      ),
-      P({ style: "font-size: 1.1rem;" }, error),
-      Button(
-        {
-          onclick: () => router.go("/"),
-          style: " margin-top: 1rem; color: #007bff; text-decoration: none;",
-        },
-        "Go Home"
+  return () => {
+    return Div(
+      {
+        style: "width: 100%, height: 100vh, display: flex, justifyContent: center, alignItems: center, backgroundColor: '#f8f9fa'",
+      },
+      Div(
+        { style: "text-align: center; color: #721c24;" },
+        H1(
+          {
+            style: "font-size: 3rem; font-weight: 700; margin-bottom: 1rem;",
+          },
+          "Error"
+        ),
+        P({ style: "font-size: 1.1rem;" }, error),
+        A(
+          {
+            href: requests.url("/"),
+            style: " margin-top: 1rem; color: #007bff; text-decoration: none;",
+          },
+          "Go Home"
+        )
       )
-    )
-  );
+    );
+  }
 }
 
 const unauthorized = () =>
@@ -97,140 +95,120 @@ const unauthorized = () =>
   );
 
 function setPageProps(routeObj) {
-  // Title
-  document.title = routeObj.title
-    ? `${routeObj.title} - ${babloApp.config.app.name}`
-    : babloApp.config.app.name;
+  if (!routeObj || typeof routeObj !== "object") return;
 
-  // Description
-  let metaDesc = document.querySelector('meta[name="description"]');
-  if (!metaDesc) {
-    metaDesc = document.createElement("meta");
-    metaDesc.name = "description";
-    document.head.appendChild(metaDesc);
-  }
-  metaDesc.content = routeObj.description || babloApp.config.app.description || "";
+  // fallback checks meta, direct, app config, then globally defined (if any), then fallbackVal, empty
+  const fallback = (k, fallbackVal) =>
+    (routeObj?.meta && routeObj.meta[k] != null ? routeObj.meta[k]
+      : (routeObj[k] != null ? routeObj[k]
+      : (babloApp?.app && babloApp.app[k] != null ? babloApp.app[k]
+      : (babloApp && babloApp[k] != null ? babloApp[k]
+      : fallbackVal ?? ""))));
 
-  // Keywords
-  let metaKeywords = document.querySelector('meta[name="keywords"]');
-  if (!metaKeywords) {
-    metaKeywords = document.createElement("meta");
-    metaKeywords.name = "keywords";
-    document.head.appendChild(metaKeywords);
-  }
-  metaKeywords.content = routeObj.keywords || babloApp.config.app.keywords || "";
+  const metaTags = {
+    title: fallback("title", babloApp?.app?.name),
+    description: fallback("description", babloApp?.app?.description),
+    keywords: fallback("keywords", babloApp?.app?.keywords),
+    robots: fallback("robots", babloApp?.app?.robots),
+    author: fallback("author", babloApp?.app?.author),
+    license: fallback("license", babloApp?.app?.license),
+    ogImage: fallback("ogImage", babloApp?.app?.ogImage),
+    twitterImage: fallback("twitterImage", babloApp?.app?.twitterImage),
+    twitterTitle: fallback("twitterTitle", babloApp?.app?.twitterTitle),
+    twitterDescription: fallback("twitterDescription", babloApp?.app?.twitterDescription),
+    twitterCard: fallback("twitterCard", babloApp?.app?.twitterCard),
+    twitterUrl: fallback("twitterUrl", babloApp?.app?.twitterUrl),
+    twitterSite: fallback("twitterSite", babloApp?.app?.twitterSite),
+    twitterCreator: fallback("twitterCreator", babloApp?.app?.twitterCreator),
+    twitterDomain: fallback("twitterDomain", babloApp?.app?.twitterDomain),
+  };
 
-  // Robots
-  let metaRobots = document.querySelector('meta[name="robots"]');
-  if (!metaRobots) {
-    metaRobots = document.createElement("meta");
-    metaRobots.name = "robots";
-    document.head.appendChild(metaRobots);
-  }
-  metaRobots.content = routeObj.robots || babloApp.config.app.robots || "";
+  // Set page title
+  document.title =
+    metaTags.title && metaTags.title !== babloApp?.app?.name
+      ? `${metaTags.title} - ${babloApp?.app?.name || ""}`
+      : babloApp?.app?.name || "";
 
-  // Author
-  let metaAuthor = document.querySelector('meta[name="author"]');
-  if (!metaAuthor) {
-    metaAuthor = document.createElement("meta");
-    metaAuthor.name = "author";
-    document.head.appendChild(metaAuthor);
-  }
-  metaAuthor.content = routeObj.author || babloApp.config.app.author || "";
-
-  // License
-  let metaLicense = document.querySelector('meta[name="license"]');
-  if (!metaLicense) {
-    metaLicense = document.createElement("meta");
-    metaLicense.name = "license";
-    document.head.appendChild(metaLicense);
-  }
-  metaLicense.content = routeObj.license || babloApp.config.app.license || "";
-
-  // Open Graph (og:) Tags for better social sharing (optional but improves SEO)
-  // og:title
-  let ogTitle = document.querySelector('meta[property="og:title"]');
-  if (!ogTitle) {
-    ogTitle = document.createElement("meta");
-    ogTitle.setAttribute("property", "og:title");
-    document.head.appendChild(ogTitle);
-  }
-  ogTitle.content = routeObj.title
-    ? `${routeObj.title} - ${babloApp.config.app.name}`
-    : babloApp.config.app.name;
-
-  // og:description
-  let ogDesc = document.querySelector('meta[property="og:description"]');
-  if (!ogDesc) {
-    ogDesc = document.createElement("meta");
-    ogDesc.setAttribute("property", "og:description");
-    document.head.appendChild(ogDesc);
-  }
-  ogDesc.content = routeObj.description || babloApp.config.app.description || "";
-
-  // og:type (defaults to website)
-  let ogType = document.querySelector('meta[property="og:type"]');
-  if (!ogType) {
-    ogType = document.createElement("meta");
-    ogType.setAttribute("property", "og:type");
-    document.head.appendChild(ogType);
-  }
-  ogType.content = "website";
-
-  // og:url (uses window.location.href)
-  let ogUrl = document.querySelector('meta[property="og:url"]');
-  if (!ogUrl) {
-    ogUrl = document.createElement("meta");
-    ogUrl.setAttribute("property", "og:url");
-    document.head.appendChild(ogUrl);
-  }
-  ogUrl.content = window.location.href;
-
-  // og:image (if provided in routeObj, otherwise fallback/remove)
-  if (routeObj.ogImage || babloApp.config.app.ogImage) {
-    let ogImage = document.querySelector('meta[property="og:image"]');
-    if (!ogImage) {
-      ogImage = document.createElement("meta");
-      ogImage.setAttribute("property", "og:image");
-      document.head.appendChild(ogImage);
+  // Utility to get-or-create a meta tag
+  const getOrCreateMeta = (selector, attrs = {}) => {
+    let el = document.querySelector(selector);
+    if (!el) {
+      el = document.createElement("meta");
+      Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      document.head.appendChild(el);
     }
-    ogImage.content = routeObj.ogImage || babloApp.config.app.ogImage;
+    return el;
+  };
+
+  // Standard Meta Tags
+  getOrCreateMeta('meta[name="description"]', { name: "description" }).content =
+    metaTags.description || "";
+
+  getOrCreateMeta('meta[name="keywords"]', { name: "keywords" }).content =
+    metaTags.keywords || "";
+
+  getOrCreateMeta('meta[name="robots"]', { name: "robots" }).content =
+    metaTags.robots || "";
+
+  getOrCreateMeta('meta[name="author"]', { name: "author" }).content =
+    metaTags.author || "";
+
+  getOrCreateMeta('meta[name="license"]', { name: "license" }).content =
+    metaTags.license || "";
+
+  // Open Graph (og:) Tags for better social sharing
+  getOrCreateMeta('meta[property="og:title"]', { property: "og:title" }).content =
+    metaTags.title && metaTags.title !== babloApp?.app?.name
+      ? `${metaTags.title} - ${babloApp?.app?.name || ""}`
+      : babloApp?.app?.name || "";
+
+  getOrCreateMeta('meta[property="og:description"]', { property: "og:description" }).content =
+    metaTags.description || "";
+
+  getOrCreateMeta('meta[property="og:type"]', { property: "og:type" }).content =
+    "website";
+
+  getOrCreateMeta('meta[property="og:url"]', { property: "og:url" }).content =
+    window.location.href || "";
+
+  if (metaTags.ogImage) {
+    getOrCreateMeta('meta[property="og:image"]', { property: "og:image" }).content = metaTags.ogImage;
   }
+
   // Twitter Card meta (basic support)
-  let twitterCard = document.querySelector('meta[name="twitter:card"]');
-  if (!twitterCard) {
-    twitterCard = document.createElement("meta");
-    twitterCard.name = "twitter:card";
-    document.head.appendChild(twitterCard);
-  }
-  twitterCard.content = "summary_large_image";
-  let twitterTitle = document.querySelector('meta[name="twitter:title"]');
-  if (!twitterTitle) {
-    twitterTitle = document.createElement("meta");
-    twitterTitle.name = "twitter:title";
-    document.head.appendChild(twitterTitle);
-  }
-  twitterTitle.content = routeObj.title
-    ? `${routeObj.title} - ${babloApp.config.app.name}`
-    : babloApp.config.app.name;
-  let twitterDesc = document.querySelector('meta[name="twitter:description"]');
-  if (!twitterDesc) {
-    twitterDesc = document.createElement("meta");
-    twitterDesc.name = "twitter:description";
-    document.head.appendChild(twitterDesc);
-  }
-  twitterDesc.content = routeObj.description || babloApp.config.app.description || "";
+  getOrCreateMeta('meta[name="twitter:card"]', { name: "twitter:card" }).content =
+    metaTags.twitterCard || "summary_large_image";
 
-  if (routeObj.twitterImage || babloApp.config.app.twitterImage) {
-    let twitterImg = document.querySelector('meta[name="twitter:image"]');
-    if (!twitterImg) {
-      twitterImg = document.createElement("meta");
-      twitterImg.name = "twitter:image";
-      document.head.appendChild(twitterImg);
-    }
-    twitterImg.content = routeObj.twitterImage || babloApp.config.app.twitterImage;
+  getOrCreateMeta('meta[name="twitter:title"]', { name: "twitter:title" }).content =
+    metaTags.twitterTitle ||
+    (metaTags.title && metaTags.title !== babloApp?.app?.name
+      ? `${metaTags.title} - ${babloApp?.app?.name || ""}`
+      : babloApp?.app?.name || "");
+
+  getOrCreateMeta('meta[name="twitter:description"]', { name: "twitter:description" }).content =
+    metaTags.twitterDescription || metaTags.description || "";
+
+  if (metaTags.twitterImage) {
+    getOrCreateMeta('meta[name="twitter:image"]', { name: "twitter:image" }).content = metaTags.twitterImage;
+  }
+
+  if (metaTags.twitterUrl) {
+    getOrCreateMeta('meta[name="twitter:url"]', { name: "twitter:url" }).content = metaTags.twitterUrl;
+  }
+
+  if (metaTags.twitterSite) {
+    getOrCreateMeta('meta[name="twitter:site"]', { name: "twitter:site" }).content = metaTags.twitterSite;
+  }
+
+  if (metaTags.twitterCreator) {
+    getOrCreateMeta('meta[name="twitter:creator"]', { name: "twitter:creator" }).content = metaTags.twitterCreator;
+  }
+
+  if (metaTags.twitterDomain) {
+    getOrCreateMeta('meta[name="twitter:domain"]', { name: "twitter:domain" }).content = metaTags.twitterDomain;
   }
 }
+
 
 export class Router {
   constructor() {
@@ -242,7 +220,7 @@ export class Router {
       ? route
       : requests.url(route);
     window.history.pushState({}, "", newRoute);
-    console.log("Pushed to history:", newRoute);
+    //console.log("Pushed to history:", newRoute);
     await this.route(newRoute);
     return newRoute;
   }
@@ -275,7 +253,7 @@ export class Router {
       }
       route = route.split("?")[0];
       cleanRoute = route.replace(requests.url(""), "").toLowerCase() || "/";
-      babloApp.config.appState.clear();
+      babloApp.appState.clear();
       if (cleanRoute.endsWith("/") && cleanRoute.length > 1) {
         cleanRoute = "/" + cleanRoute.slice(0, -1);
       }
@@ -285,36 +263,67 @@ export class Router {
       if (route.startsWith("/") && !route.startsWith(requests.url(""))) {
         cleanRoute = route;
       }
-      console.log("cleanRoute", cleanRoute);
+      console.log("cleanRoute", babloApp.routes[cleanRoute]);
 
-      let routeObj = this.routes[cleanRoute];
+      let routeObj = babloApp.routes[cleanRoute];
       if (!routeObj && !component) {
         setPageProps({ title: "404 - Page Not Found", description: "" });
-        return render(notFound, babloApp.config.app.root);
+        return render(notFound, babloApp.root);
       }
+
+      console.log("Route Object:", routeObj);
+
       if (component && typeof component === "function") {
         setPageProps({ title: "Component", description: "" });
-        render(component, babloApp.config.app.root);
+        render(component, babloApp.root);
         return;
       }
+      //console.log("Component:", component);
+
       if (component && typeof component === "object") {
         routeObj = component;
       }
+
+      //console.log("ROOT:", babloApp.root);
       if (routeObj) {
         setPageProps(routeObj);
-        const module = await routeObj.component();
-        if (babloApp.config.componentState.has("component-state")) {
-          babloApp.config.componentState.delete("component-state");
+        let component;
+
+        // Handle both lazy loading and direct imports
+        if (typeof routeObj.component === "function") {
+          // Store the original function in case we need it
+          const componentFn = routeObj.component;
+
+          // Try calling it to check if it returns a Promise (lazy loading)
+          const result = componentFn();
+
+          if (result && typeof result.then === "function") {
+            // Lazy loading: result is a Promise
+            const module = await result;
+            component = module.default || module;
+          } else {
+            // Direct import: the function itself is the component
+            // (we called it and got a VNode, but render needs the function)
+            component = componentFn;
+          }
+        } else {
+          // Component is already the function itself
+          component = routeObj.component;
         }
-        babloApp.config.componentState.set("component-state", module.default);
-        render(module.default, babloApp.config.app.root);
+
+        if (babloApp.componentState.has("component-state")) {
+          babloApp.componentState.delete("component-state");
+        }
+        babloApp.componentState.set("component-state", component);
+        render(component, babloApp.root);
         return;
       }
+      //console.log("No matching route found.");
     } catch (error) {
       console.error("Error loading route:", error);
       setPageProps({ title: "Error", description: "" });
-      babloApp.config.app.root.innerHTML = "";
-      render(errorPage(this, error.message), babloApp.config.app.root);
+      babloApp.root.innerHTML = "";
+      render(errorPage(this, error.toString()), babloApp.root);
     }
   }
 
@@ -340,13 +349,13 @@ export class Router {
           !href.includes("javascript:")
         ) {
           event.preventDefault();
-          console.log("HREF", href);
+          //console.log("HREF", href);
           this.go(href);
         }
       } else if (route) {
         this.go(requests.url(route));
       } else if (component) {
-        render(component(), babloApp.config.app.root);
+        render(component(), babloApp.root);
       }
     });
   }

@@ -5,7 +5,7 @@
 /* ============================================
    RESET & BASE
    ============================================ */
-* {
+   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -43,6 +43,8 @@
     /* 61px */
     --text-6xl: 4.768rem;
     /* 76.29px */
+    --text-7xl: 5.96rem;
+    /* 95.36px */
 
     /* Font Weights */
     --font-light: 300;
@@ -1806,6 +1808,16 @@ LOADING STATE
 .footer-section {
     display: flex;
     flex-direction: column;
+    text-align: center;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+    .footer-section {
+        text-align: left;
+        margin: 0;
+    }
 }
 
 .footer-section-title {
@@ -2763,6 +2775,225 @@ LOADING STATE
     gap: var(--space-4);
     margin-top: var(--space-2);
     padding: 0 var(--space-4);
+}
+
+/* Home Starter Page Styles */
+.home-starter-page {
+    width: 100%;
+    min-height: 100vh;
+}
+
+.home-badge {
+    margin-top: var(--space-4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.home-badge .badge {
+    background: linear-gradient(135deg, var(--color-secondary-100) 0%, var(--color-accent-100) 100%);
+    color: var(--color-secondary-700);
+    font-weight: var(--font-semibold);
+    padding: var(--space-2) var(--space-5);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-wide);
+}
+
+/* Home Counter Section - Prominent Display */
+.home-counter-section {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-6);
+}
+
+.home-counter-title {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-bold);
+    text-align: center;
+    background: linear-gradient(135deg, var(--color-secondary-600) 0%, var(--color-accent-500) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+}
+
+.home-counter-subtitle {
+    font-size: var(--text-lg);
+    color: var(--color-text-secondary);
+    text-align: center;
+    margin: 0;
+}
+
+.home-counter-card {
+    width: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(139, 92, 246, 0.05) 100%);
+    border-radius: var(--radius-2xl);
+    border: 2px solid var(--color-border-primary);
+    padding: var(--space-12) var(--space-8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-8);
+    box-shadow: var(--shadow-lg);
+    transition: all var(--transition-base);
+}
+
+.home-counter-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--color-secondary-300);
+}
+
+.home-counter-display-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-8) var(--space-6);
+    background: linear-gradient(135deg, var(--color-secondary-50) 0%, var(--color-accent-50) 100%);
+    border-radius: var(--radius-xl);
+    border: 2px solid var(--color-secondary-200);
+    min-height: 200px;
+}
+
+.home-counter-display {
+    font-size: clamp(3.815rem, 10vw, 5.96rem);
+    font-weight: var(--font-extrabold);
+    background: linear-gradient(135deg, var(--color-secondary-600) 0%, var(--color-secondary-700) 50%, var(--color-accent-500) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    text-align: center;
+    letter-spacing: -0.02em;
+    transition: transform var(--transition-fast);
+}
+
+.home-counter-card:hover .home-counter-display {
+    transform: scale(1.05);
+}
+
+.home-counter-controls {
+    display: flex;
+    gap: var(--space-4);
+    width: 100%;
+    max-width: 600px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.home-counter-btn {
+    flex: 1;
+    min-width: 140px;
+    padding: var(--space-4) var(--space-6);
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+    border-radius: var(--radius-lg);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    font-family: var(--font-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.home-counter-btn-decrement {
+    background-color: var(--color-white);
+    color: var(--color-secondary-700);
+    border-color: var(--color-secondary-300);
+}
+
+.home-counter-btn-decrement:hover {
+    background-color: var(--color-secondary-50);
+    border-color: var(--color-secondary-500);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.home-counter-btn-reset {
+    background-color: var(--color-neutral-100);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-primary);
+}
+
+.home-counter-btn-reset:hover {
+    background-color: var(--color-neutral-200);
+    border-color: var(--color-neutral-400);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.home-counter-btn-increment {
+    background: linear-gradient(135deg, var(--color-secondary-600) 0%, var(--color-accent-500) 100%);
+    color: var(--color-text-inverse);
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.home-counter-btn-increment::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s;
+}
+
+.home-counter-btn-increment:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.home-counter-btn-increment:hover::before {
+    left: 100%;
+}
+
+@media (max-width: 768px) {
+    .home-counter-section {
+        gap: var(--space-4);
+    }
+
+    .home-counter-title {
+        font-size: var(--text-2xl);
+    }
+
+    .home-counter-subtitle {
+        font-size: var(--text-base);
+    }
+
+    .home-counter-card {
+        padding: var(--space-8) var(--space-6);
+        gap: var(--space-6);
+    }
+
+    .home-counter-display-wrapper {
+        padding: var(--space-6) var(--space-4);
+        min-height: 160px;
+    }
+
+    .home-counter-display {
+        font-size: clamp(3.052rem, 12vw, 4.768rem);
+    }
+
+    .home-counter-controls {
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+
+    .home-counter-btn {
+        width: 100%;
+        min-width: 0;
+    }
 }
 
 .hero-card {

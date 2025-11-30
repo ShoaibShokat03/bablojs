@@ -1,0 +1,79 @@
+# Development directories
+.git/
+.cursor/
+.vscode/
+.idea/
+
+# Development files
+git
+.htaccess
+package.md
+
+# Node modules and dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Build artifacts
+dist/
+build/
+*.min.js.map
+*.bundle.js.map
+
+# Test files
+test/
+tests/
+__tests__/
+*.test.js
+*.spec.js
+coverage/
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+tmp/
+temp/
+
+# Documentation (keep README.md but exclude development docs)
+docs/
+package.md
+# Uncomment if you have other markdown files to exclude
+# *.md
+# !README.md
+
+# Lock files (optional - you may want to include these)
+# package-lock.json
+# yarn.lock
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+
+# Miscellaneous
+*.orig
+.cache/
+

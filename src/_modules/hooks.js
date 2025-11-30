@@ -1,5 +1,6 @@
-import Config from "../app/config/config.js";
+
 import { render } from "./bablo.js";
+import { babloApp } from "./BabloApp.js";
 
 /* ---------- Internal State ---------- */
 let stateCursor = 0;
@@ -10,26 +11,25 @@ let refCursor = 0;
 let effects = [];
 let memoCache = [];
 let refs = [];
-
 /* ---------- useState ---------- */
 export function useState(initialValue) {
   const index = stateCursor++;
-  const compKey = Config.appState.get("render-component-index");
+  const compKey = babloApp.appState.get("render-component-index");
   const key = `state-${compKey}-${index}`;
 
-  if (!Config.appState.has(key)) {
-    Config.appState.set(key, initialValue);
+  if (!babloApp.appState.has(key)) {
+    babloApp.appState.set(key, initialValue);
   }
 
-  const getState = () => Config.appState.get(key);
+  const getState = () => babloApp.appState.get(key);
 
   const setState = (newValue) => {
-    const currentValue = Config.appState.get(key);
+    const currentValue = babloApp.appState.get(key);
     const valueToSet =
       typeof newValue === "function" ? newValue(currentValue) : newValue;
 
     if (valueToSet !== currentValue) {
-      Config.appState.set(key, valueToSet);
+      babloApp.appState.set(key, valueToSet);
       scheduleUpdate();
     }
   };
@@ -46,16 +46,16 @@ export function resetStateCursor() {
 
   effects = [];
   memoCache = [];
-  refs = [];
+  // Note: refs are now stored in appState, so we don't reset them here
 }
 
 /* ---------- useEffect ---------- */
 export function useEffect(callback, dependencies) {
   const index = effectCursor++;
-  const compKey = Config.appState.get("render-component-index");
+  const compKey = babloApp.appState.get("render-component-index");
   const key = `effect-${compKey}-${index}`;
 
-  const old = Config.appState.get(key) || { deps: undefined, cleanup: null };
+  const old = babloApp.appState.get(key) || { deps: undefined, cleanup: null };
 
   // check deps properly
   const hasChanged =
@@ -68,7 +68,7 @@ export function useEffect(callback, dependencies) {
     effects.push(() => {
       if (old.cleanup) old.cleanup(); // cleanup pehle run karo
       const cleanup = callback(); // callback run
-      Config.appState.set(key, { deps: dependencies, cleanup });
+      babloApp.appState.set(key, { deps: dependencies, cleanup });
     });
   }
 }
@@ -77,10 +77,14 @@ export function useEffect(callback, dependencies) {
 /* ---------- useRef ---------- */
 export function useRef(initialValue) {
   const index = refCursor++;
-  if (!refs[index]) {
-    refs[index] = { current: initialValue };
+  const compKey = babloApp.appState.get("render-component-index") || "default";
+  const key = `ref-${compKey}-${index}`;
+  
+  // Refs should persist across renders, so store in appState
+  if (!babloApp.appState.has(key)) {
+    babloApp.appState.set(key, { current: initialValue });
   }
-  return refs[index];
+  return babloApp.appState.get(key);
 }
 
 /* ---------- useMemo ---------- */
@@ -97,6 +101,7 @@ export function useMemo(factory, dependencies) {
   const { value, deps } = cache;
   const hasChanged =
     !deps ||
+    !dependencies ||
     dependencies.length !== deps.length ||
     dependencies.some((d, i) => d !== deps[i]);
 
@@ -116,10 +121,10 @@ function scheduleUpdate() {
     scheduled = true;
     Promise.resolve().then(() => {
       scheduled = false;
-      const comp = Config.componentState.get("renderd-state");
+      const comp = babloApp.componentState.get("renderd-state");
       if (comp) {
         resetStateCursor();
-        render(comp, Config.app.root);
+        render(comp, babloApp.root);
         runEffects();
       }
     });

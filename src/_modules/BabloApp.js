@@ -4,6 +4,7 @@ import { storage } from "./storage.js";
 class BabloApp {
     constructor() {
         this.root = null;
+        this.version = "1.0.0";
         this.baseUrl = document.querySelector("base").href;
         this.state = new Map();
         this.routes = [];
@@ -18,6 +19,12 @@ class BabloApp {
         this.port = window.location.port;
         this.storage = storage;
         this.roles = this.roles();
+        // App State Management
+        this.registeredComponents = {}; // Use Map for better performance with large state
+        this.componentState = new Map(); // Use Map for better performance with large state
+        this.appState = new Map(); // Use Map for better performance with large state
+        this.webpCache = new Map();
+        this.appCache = new Set(); // Use Set for unique entries
     }
     roles() {
         return {
@@ -35,7 +42,8 @@ class BabloApp {
     clearState() {
         this.state.clear();
     }
-    init(config) {
+    init(config = null) {
+        console.log(config);
         this.config = config;
         const root = document.getElementById("root");
         if (root) {
@@ -44,6 +52,16 @@ class BabloApp {
         const app = document.getElementById("app");
         if (app) {
             this.root = app;
+        }
+        if (config && config.app && babloApp.root) {
+            this.root = babloApp.root;
+        }
+
+        // override the this.keys with app.keys if exists
+        if (config) {
+            Object.keys(config).forEach(key => {
+                this[key] = config[key];
+            });
         }
         console.log("BabloApp initialized");
     }

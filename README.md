@@ -173,10 +173,13 @@ bablojs-app/
 │   │   │                         # - DOMContentLoaded wrapper
 │   │   │                         # - Window event management
 │   │   │
-│   │   ├── fetchRequest.js       # HTTP Client
-│   │   │                         # - Advanced fetch wrapper
+│   │   ├── babloHttp.js          # BabloHttp - Unique HTTP Client
+│   │   │                         # - Better than axios
+│   │   │                         # - Request/Response interceptors
+│   │   │                         # - Request cancellation
+│   │   │                         # - Automatic retry
 │   │   │                         # - Progress tracking
-│   │   │                         # - Error handling
+│   │   │                         # - Multiple response types
 │   │   │                         # - Request/response interceptors
 │   │   │
 │   │   ├── forms.js              # Form Utilities
@@ -576,13 +579,28 @@ storage.remove("key");
 storage.clear();
 ```
 
-### 7. fetchRequest.js - HTTP Client
+### 7. babloHttp.js - BabloHttp Unique HTTP Client
 
-**Purpose**: Advanced fetch wrapper with progress tracking and error handling.
+**Purpose**: Powerful and unique HTTP client library for BabloJS with advanced features, better than axios.
+
+**Key Features**:
+- Request/Response interceptors
+- Request cancellation (AbortController)
+- Automatic retry with exponential backoff
+- Multiple response types (JSON, text, blob, arrayBuffer)
+- Progress tracking for upload/download
+- Base URL configuration
+- Query parameters builder
+- Comprehensive error handling
+- Instance-based client creation
 
 **Usage**:
+
+**Simple usage (backward compatible)**:
 ```javascript
-await fetchRequest({
+import { babloRequest } from './_modules/babloHttp.js';
+
+const data = await babloRequest({
   url: "/api/data",
   method: "POST",
   body: { name: "John" },
@@ -593,6 +611,59 @@ await fetchRequest({
   timeout: 10000
 });
 ```
+
+**Enhanced usage with convenience methods**:
+```javascript
+import babloHttp from './_modules/babloHttp.js';
+
+// GET request
+const users = await babloHttp.get('/api/users', {
+  params: { page: 1, limit: 10 }
+});
+
+// POST request
+const newUser = await babloHttp.post('/api/users', {
+  name: 'John',
+  email: 'john@example.com'
+});
+
+// With interceptors
+babloHttp.interceptRequest((config) => {
+  config.headers['Authorization'] = `Bearer ${token}`;
+  return config;
+});
+
+// Create custom instance
+const apiClient = babloHttp.create({
+  baseURL: 'https://api.example.com',
+  timeout: 5000,
+  retries: 3,
+  headers: {
+    'Authorization': 'Bearer token'
+  }
+});
+```
+
+**Advanced features**:
+```javascript
+// Request cancellation
+const controller = new AbortController();
+const request = babloHttp.get('/api/data', { signal: controller.signal });
+controller.abort(); // Cancel the request
+
+// Automatic retry
+const data = await babloHttp.get('/api/data', {
+  retries: 3,
+  retryDelay: 1000,
+  retryCondition: (error) => error.status >= 500
+});
+
+// Response types
+const blob = await babloHttp.get('/api/file', { responseType: 'blob' });
+const text = await babloHttp.get('/api/file', { responseType: 'text' });
+```
+
+**Interactive Demo**: Visit `/bablo-http` route to see BabloHttp in action!
 
 ---
 
@@ -1040,7 +1111,7 @@ async route(route) {
   const routeObj = this.routes[route];
   
   if (routeObj?.auth && !isAuthenticated()) {
-    return render(unauthorized, babloApp.config.app.root);
+    return render(unauthorized, babloApp.babloApp.root);
   }
   
   // Continue with normal routing...
