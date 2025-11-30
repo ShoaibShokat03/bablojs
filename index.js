@@ -17,8 +17,8 @@ function copyFolder(src, dest) {
         const srcPath = path.join(src, entry.name);
         const destPath = path.join(dest, entry.name);
 
-        entry.isDirectory() 
-            ? copyFolder(srcPath, destPath) 
+        entry.isDirectory()
+            ? copyFolder(srcPath, destPath)
             : fs.copyFileSync(srcPath, destPath);
     }
 }
@@ -26,3 +26,44 @@ function copyFolder(src, dest) {
 // 🏁 phir call karo
 copyFolder(templatePath, target);
 console.log("✅ Project created at", target);
+console.log("\n📖 USAGE INFORMATION:");
+console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+console.log("\n1️⃣  Navigate to your project:");
+console.log(`   cd ${path.basename(target)}`);
+console.log("\n2️⃣  Start the development server:");
+console.log("   npm start");
+console.log("   # or");
+console.log("   npm run dev");
+console.log("   # or");
+console.log("   npx serve .");
+console.log("\n3️⃣  Open your browser:");
+console.log("   http://localhost:3000");
+console.log("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+console.log("\n🖥️  RECOMMENDED DEV SERVER OPTIONS:");
+console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+console.log("\n📌 Option 1: npx serve (Recommended)");
+console.log("   Command: npx serve .");
+console.log("   Port: 3000 (default)");
+console.log("   Features: Fast, simple, no installation needed");
+console.log("\n📌 Option 2: PHP Built-in Server");
+console.log("   Command: php -S localhost:8000");
+console.log("   Port: 8000");
+console.log("   Features: Good for PHP developers");
+console.log("\n📌 Option 3: Python HTTP Server");
+console.log("   Command: python -m http.server 8000");
+console.log("   Port: 8000");
+console.log("   Features: Available on most systems");
+console.log("\n📌 Option 4: Node.js http-server");
+console.log("   Command: npx http-server -p 8080");
+console.log("   Port: 8080");
+console.log("   Features: Full-featured HTTP server");
+console.log("\n📌 Option 5: VS Code Live Server");
+console.log("   Install: Live Server extension");
+console.log("   Usage: Right-click index.html → Open with Live Server");
+console.log("   Port: 5500 (default)");
+console.log("   Features: Auto-reload on file changes");
+console.log("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+console.log("\n💡 TIP: ES6 modules require a local server (CORS restrictions).");
+console.log("   You cannot open index.html directly in the browser.");
+console.log("\n🚀 Happy coding with BABLOJS!");
+console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
