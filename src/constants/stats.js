@@ -1,0 +1,16 @@
+export const heroStats = {
+    BUNDLE_SIZE: "2 KB",
+    BUILD_TOOLING_NEEDED: "0",
+    PROJECTS_POWERED: "500+",
+}
+
+export const communityStats = {
+    TOTAL_PROJECTS: 500,
+    TOTAL_USERS: 1000,
+    TOTAL_DOWNLOADS: 10000,
+    TOTAL_CONTRIBUTORS: 100,
+    TOTAL_COMMITS: 10000,
+    TOTAL_ISSUES: 100,
+    TOTAL_PULL_REQUESTS: 100,
+}
+
