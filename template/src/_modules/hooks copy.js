@@ -1,0 +1,138 @@
+
+import { render } from "./bablo.js";
+import { babloApp } from "./BabloApp.js";
+
+/* ---------- Internal State ---------- */
+let stateCursor = 0;
+let effectCursor = 0;
+let memoCursor = 0;
+let refCursor = 0;
+
+let effects = [];
+let memoCache = [];
+let refs = [];
+/* ---------- useState ---------- */
+export function useState(initialValue) {
+  const index = stateCursor++;
+  const compKey = babloApp.appState.get("render-component-index");
+  const key = `state-${compKey}-${index}`;
+
+  if (!babloApp.appState.has(key)) {
+    babloApp.appState.set(key, initialValue);
+  }
+
+  const getState = () => babloApp.appState.get(key);
+
+  const setState = (newValue) => {
+    const currentValue = babloApp.appState.get(key);
+    const valueToSet =
+      typeof newValue === "function" ? newValue(currentValue) : newValue;
+
+    if (valueToSet !== currentValue) {
+      babloApp.appState.set(key, valueToSet);
+      scheduleUpdate();
+    }
+  };
+
+  return [getState(), setState];
+}
+
+/* ---------- Reset Cursors ---------- */
+export function resetStateCursor() {
+  stateCursor = 0;
+  effectCursor = 0;
+  memoCursor = 0;
+  refCursor = 0;
+
+  effects = [];
+  memoCache = [];
+  // Note: refs are now stored in appState, so we don't reset them here
+}
+
+/* ---------- useEffect ---------- */
+export function useEffect(callback, dependencies) {
+  const index = effectCursor++;
+  const compKey = babloApp.appState.get("render-component-index");
+  const key = `effect-${compKey}-${index}`;
+
+  const old = babloApp.appState.get(key) || { deps: undefined, cleanup: null };
+
+  // check deps properly
+  const hasChanged =
+    !dependencies ||
+    !old.deps ||
+    dependencies.length !== old.deps.length ||
+    dependencies.some((d, i) => d !== old.deps[i]);
+
+  if (hasChanged) {
+    effects.push(() => {
+      if (old.cleanup) old.cleanup(); // cleanup pehle run karo
+      const cleanup = callback(); // callback run
+      babloApp.appState.set(key, { deps: dependencies, cleanup });
+    });
+  }
+}
+
+
+/* ---------- useRef ---------- */
+export function useRef(initialValue) {
+  const index = refCursor++;
+  const compKey = babloApp.appState.get("render-component-index") || "default";
+  const key = `ref-${compKey}-${index}`;
+  
+  // Refs should persist across renders, so store in appState
+  if (!babloApp.appState.has(key)) {
+    babloApp.appState.set(key, { current: initialValue });
+  }
+  return babloApp.appState.get(key);
+}
+
+/* ---------- useMemo ---------- */
+export function useMemo(factory, dependencies) {
+  const index = memoCursor++;
+  const cache = memoCache[index];
+
+  if (!cache) {
+    const value = factory();
+    memoCache[index] = { value, deps: dependencies };
+    return value;
+  }
+
+  const { value, deps } = cache;
+  const hasChanged =
+    !deps ||
+    !dependencies ||
+    dependencies.length !== deps.length ||
+    dependencies.some((d, i) => d !== deps[i]);
+
+  if (hasChanged) {
+    const newValue = factory();
+    memoCache[index] = { value: newValue, deps: dependencies };
+    return newValue;
+  }
+
+  return value;
+}
+
+/* ---------- Scheduler ---------- */
+let scheduled = false;
+function scheduleUpdate() {
+  if (!scheduled) {
+    scheduled = true;
+    Promise.resolve().then(() => {
+      scheduled = false;
+      const comp = babloApp.componentState.get("renderd-state");
+      if (comp) {
+        resetStateCursor();
+        render(comp, babloApp.root);
+        runEffects();
+      }
+    });
+  }
+}
+
+/* ---------- Run Effects ---------- */
+export function runEffects() {
+  effects.forEach((fn) => fn());
+  effects = [];
+}
