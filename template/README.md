@@ -1,11 +1,11 @@
-# BABLOJS - Vanilla JavaScript SPA Framework
+# BABLOjS - Vanilla JavaScript SPA Framework
 
-A lightweight, fast, and scalable Single Page Application framework built with vanilla JavaScript. BABLOJS provides React-like features including Virtual DOM, hooks, routing, and component-based architecture without the overhead of external dependencies.
+A lightweight, fast, and scalable Single Page Application framework built with vanilla JavaScript. BABLOjS provides React-like features including Virtual DOM, hooks, routing, and component-based architecture without the overhead of external dependencies. There is no need to build, Just Deploy!
 
 ## 📖 Table of Contents
 
-- [What is BABLOJS?](#what-is-bablojs)
-- [Why BABLOJS?](#why-bablojs)
+- [What is BABLOjS?](#what-is-bablojs)
+- [Why BABLOjS?](#why-bablojs)
 - [Core Architecture](#core-architecture)
 - [Complete File Structure](#complete-file-structure)
 - [Installation & Setup](#installation--setup)
@@ -19,9 +19,9 @@ A lightweight, fast, and scalable Single Page Application framework built with v
 
 ---
 
-## What is BABLOJS?
+## What is BABLOjS?
 
-BABLOJS is a modern JavaScript framework that brings the power of React-like development to vanilla JavaScript. It's designed for developers who want:
+BABLOjS is a modern JavaScript framework that brings the power of React-like development to vanilla JavaScript. It's designed for developers who want:
 
 - **Modern Development Experience**: React-like hooks, component architecture, and Virtual DOM
 - **Zero Build Step**: No webpack, babel, or build tools required - just ES6 modules
@@ -31,7 +31,7 @@ BABLOJS is a modern JavaScript framework that brings the power of React-like dev
 
 ### Philosophy
 
-BABLOJS follows these core principles:
+BABLOjS follows these core principles:
 
 1. **Simplicity First**: Easy to learn, easy to use, easy to debug
 2. **Performance**: Optimized Virtual DOM, efficient rendering, minimal re-renders
@@ -41,9 +41,9 @@ BABLOJS follows these core principles:
 
 ---
 
-## Why BABLOJS?
+## Why BABLOjS?
 
-### When to Use BABLOJS
+### When to Use BABLOjS
 
 ✅ **Perfect for:**
 - Small to medium SPAs
@@ -55,13 +55,13 @@ BABLOJS follows these core principles:
 - Applications needing SEO optimization
 
 ❌ **Consider alternatives for:**
-- Very large enterprise applications (though BABLOJS can scale)
+- Very large enterprise applications (though BABLOjS can scale)
 - Projects requiring extensive third-party ecosystem
 - Teams heavily invested in React/Vue ecosystems
 
 ### Key Advantages
 
-| Feature | BABLOJS | React | Vue |
+| Feature | BABLOjS | React | Vue |
 |---------|---------|-------|-----|
 | Bundle Size | ~2KB gzipped | ~45KB | ~35KB |
 | Build Step | ❌ Not required | ✅ Required | ✅ Required |
@@ -73,7 +73,7 @@ BABLOJS follows these core principles:
 
 ## Core Architecture
 
-BABLOJS follows a modular architecture where each component has a specific responsibility:
+BABLOjS follows a modular architecture where each component has a specific responsibility:
 
 ```
 ┌─────────────────────────────────────────┐
@@ -110,7 +110,7 @@ DOM Update → Cleanup (if needed)
 
 ## Complete File Structure
 
-Here's a comprehensive breakdown of every file and folder in BABLOJS:
+Here's a comprehensive breakdown of every file and folder in BABLOjS:
 
 ```
 bablojs-app/
@@ -350,7 +350,7 @@ bablojs-app/
 
 ### Quick Start with Package Managers
 
-BABLOJS can be installed using various package managers. Choose the one that fits your workflow:
+BABLOjS can be installed using various package managers. Choose the one that fits your workflow:
 
 #### Using npm
 ```bash
@@ -382,15 +382,25 @@ bunx create-bablojs my-app
 cd my-app
 ```
 
+### Download BABLOjS
+
+Download the complete BABLOjS framework as a ZIP file. This includes all core modules, example components, and configuration files ready to use.
+
+**Download:** [BABLOjS ZIP File](/assets/bablojs.zip)
+
+After downloading, extract the ZIP file and follow the setup instructions below.
+
 ### Manual Installation
 
 If you prefer to set up manually:
 
-#### Step 1: Download/Clone
+#### Step 1: Download
+
+Download the BABLOjS ZIP file from the link above, or clone the repository:
 
 ```bash
-git clone <repository-url>
-cd bablojs-app
+git clone https://github.com/ShoaibShokat03/bablojs.git
+cd bablojs
 ```
 
 #### Step 2: Project Structure
@@ -400,7 +410,7 @@ Ensure your project has the following structure:
 my-app/
 ├── index.html
 ├── src/
-│   ├── _modules/          # Copy BABLOJS core modules here
+│   ├── _modules/          # Copy BABLOjS core modules here
 │   ├── views/             # Your components
 │   ├── routes/            # Route definitions
 │   └── app/               # App configuration
@@ -445,7 +455,7 @@ http://localhost:8000
 
 ## Framework Overview
 
-### How BABLOJS Works
+### How BABLOjS Works
 
 1. **Entry Point**: `index.html` loads `main.js` as an ES6 module
 2. **Initialization**: `main.js` initializes the app, router, and loads routes
@@ -471,8 +481,11 @@ Client-side routing using History API. No page reloads, smooth navigation.
 
 #### 5. State Management
 - **Component State**: `useState` hook for local component state
-- **Global State**: `Config.appState` Map for application-wide state
-- **Component State Storage**: `Config.componentState` for current component reference
+- **Global State**: `babloApp.state` Map for application-wide state (use `setState()` and `getState()` methods)
+- **Storage**: `babloApp.storage` for persistent data (localStorage)
+
+#### 6. App Initialization
+The application starts in `main.js` where BabloApp is initialized with Config, routes are set, and the router is initialized.
 
 ---
 
@@ -480,7 +493,7 @@ Client-side routing using History API. No page reloads, smooth navigation.
 
 ### 1. bablo.js - Virtual DOM Engine
 
-**Purpose**: The heart of BABLOJS. Handles Virtual DOM creation, diffing, and patching.
+**Purpose**: The heart of BABLOjS. Handles Virtual DOM creation, diffing, and patching.
 
 **Key Functions**:
 - `render(component, container)`: Renders a component to a DOM element
@@ -1309,6 +1322,6 @@ For questions, issues, or contributions:
 
 ---
 
-**BABLOJS** - Building fast, scalable SPAs with vanilla JavaScript! 🚀
+**BABLOjS** - Building fast, scalable SPAs with vanilla JavaScript! 🚀
 "# bablojs" 
 "# bablojs" 

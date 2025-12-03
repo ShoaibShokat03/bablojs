@@ -1,4 +1,4 @@
-// bablo.js - Ultra-optimized VDOM (Bug-Free, cleaned & safe)
+// dom.js - Ultra-optimized VDOM (Bug-Free, cleaned & safe)
 // Improvements: pooling optional, proper cleanup (listeners & vnode), robust keyed reconciliation,
 // reorder checks use isSameNode, style handling fixed, no unnecessary insertBefore churn.
 
@@ -109,7 +109,6 @@ function createDOMElement(vNode) {
 /* ---------- Props application with listener tracking ---------- */
 const eventCache = new Map();
 function getEventName(key) {
-  if (typeof key !== "string") return "";
   let cached = eventCache.get(key);
   if (!cached) {
     cached = key.slice(2).toLowerCase();
@@ -149,19 +148,17 @@ function applyPropsOptimized(el, oldProps = EMPTY_OBJ, newProps = EMPTY_OBJ) {
 }
 
 function setProp(el, key, value, oldValue) {
-  if (typeof key === "string" && key.startsWith("on")) {
+  // event handlers
+  if (key[0] === "o" && key[1] === "n") {
     const ev = getEventName(key);
-    // remove old listener if function
-    try {
-      const prev = el.__listeners?.get(ev);
-      if (typeof prev === "function") el.removeEventListener(ev, prev);
-    } catch (e) { }
-    el.__listeners = el.__listeners || new Map();
+    if (typeof oldValue === "function") {
+      try { el.removeEventListener(ev, oldValue); } catch (e) { }
+      el.__listeners?.delete(ev);
+    }
     if (typeof value === "function") {
       try { el.addEventListener(ev, value); } catch (e) { }
+      el.__listeners = el.__listeners || new Map();
       el.__listeners.set(ev, value);
-    } else {
-      el.__listeners.delete(ev);
     }
     return;
   }
@@ -177,7 +174,7 @@ function setProp(el, key, value, oldValue) {
       for (const p in value) style[p] = value[p];
     } else if (typeof value === "object") {
       // replace entirely if old was string or undefined
-      try { el.removeAttribute("style"); } catch (e) { }
+      el.removeAttribute("style");
       for (const p in value) style[p] = value[p];
     } else {
       // primitive style string
@@ -212,7 +209,7 @@ function setProp(el, key, value, oldValue) {
 
 function removeProp(el, key, oldValue) {
   if (!el) return;
-  if (typeof key === "string" && key.startsWith("on")) {
+  if (key[0] === "o" && key[1] === "n") {
     const ev = getEventName(key);
     try {
       const fn = el.__listeners?.get(ev);
@@ -228,7 +225,7 @@ function removeProp(el, key, oldValue) {
   }
 
   if (key === "style") {
-    try { el.removeAttribute("style"); } catch (e) { }
+    el.removeAttribute("style");
     return;
   }
 
@@ -251,10 +248,10 @@ function cleanupDomNode(node) {
     }
     listeners.clear();
   }
-  // recursively cleanup children (iterate backwards for safety)
-  const childNodes = node.childNodes || [];
-  for (let i = childNodes.length - 1; i >= 0; i--) {
-    cleanupDomNode(childNodes[i]);
+  // recursively cleanup children
+  const childCount = node.childNodes?.length || 0;
+  for (let i = 0; i < childCount; i++) {
+    cleanupDomNode(node.childNodes[i]);
   }
   // remove vnode cache
   if (node.__vnode) {
@@ -481,14 +478,6 @@ const renderQueue = new Map();
 let scheduled = false;
 let rafId = null;
 
-// Utility: unique component key per container + renderFn
-function getComponentKey(container, renderFn) {
-  if (!container.__componentKey) container.__componentKey = new Map();
-  if (!container.__componentKey.has(renderFn)) container.__componentKey.set(renderFn, Symbol());
-  return container.__componentKey.get(renderFn);
-}
-
-// Flush the render queue
 function flushRender() {
   scheduled = false;
   rafId = null;
@@ -496,65 +485,73 @@ function flushRender() {
   const entries = Array.from(renderQueue.entries());
   renderQueue.clear();
 
-  for (let [key, { container, renderFn }] of entries) {
+  for (let i = 0; i < entries.length; i++) {
+    const [container, renderFn] = entries[i];
     try {
-      // 1️⃣ Set component-index BEFORE hooks
-      const compId = container.__componentKey.get(renderFn).toString();
-      babloApp.appState.set("render-component-index", compId);
-
       resetStateCursor();
 
-      if (!container) continue;
+      const newHrefShort=window.location.href.replace(babloApp.baseUrl, "").replace("?", "-").replace("=", "-");
 
+      // Set component index for hooks to identify which component is rendering
+      const componentId = newHrefShort.replaceAll("/", "-") + "-" + (renderFn.name || `component-${i}`).toLowerCase();
+
+      babloApp.appState.set("render-component-index", componentId);
+
+      if (!container) continue;
       const oldVNode = container.__vnode || null;
       const newVNode = renderFn();
 
       if (!oldVNode) {
-        while (container.firstChild) cleanupDomNode(container.firstChild), container.removeChild(container.firstChild);
-        container.appendChild(createDOMElement(newVNode));
+        // initial mount
+        while (container.firstChild) {
+          cleanupDomNode(container.firstChild);
+          container.removeChild(container.firstChild);
+        }
+        const dom = createDOMElement(newVNode);
+        container.appendChild(dom);
+        container.__vnode = newVNode;
       } else if (changed(oldVNode, newVNode)) {
-        while (container.firstChild) cleanupDomNode(container.firstChild), container.removeChild(container.firstChild);
-        container.appendChild(createDOMElement(newVNode));
+        // root changed: replace whole content
+        while (container.firstChild) {
+          cleanupDomNode(container.firstChild);
+          container.removeChild(container.firstChild);
+        }
+        const dom = createDOMElement(newVNode);
+        container.appendChild(dom);
+        container.__vnode = newVNode;
         releaseVNode(oldVNode);
       } else {
-        patchElement(container.firstChild, container, oldVNode, newVNode);
+        // incremental
+        const rootDom = container.firstChild;
+        patchElement(rootDom, container, oldVNode, newVNode);
+        container.__vnode = newVNode;
       }
 
-      container.__vnode = newVNode;
-
-      // Store component state BEFORE running effects (in case effects trigger more renders)
-      babloApp.componentState.set("renderd-state", renderFn);
-
-      // Run effects after render
+      // lifecycle
       runEffects();
-
+      babloApp.componentState.set("renderd-state", renderFn);
     } catch (err) {
       console.error("Render Error:", err, container);
     }
   }
 }
 
-
-// Normal batched render
 export function render(renderFn, container) {
-  const key = getComponentKey(container, renderFn);
-  renderQueue.set(key, { container, renderFn });
+
+  renderQueue.set(container, renderFn);
   if (!scheduled) {
     scheduled = true;
     rafId = requestAnimationFrame(flushRender);
   }
 }
 
-// Immediate synchronous render
 export function renderSync(renderFn, container) {
-  const key = getComponentKey(container, renderFn);
-  renderQueue.set(key, { container, renderFn });
-
   if (scheduled && rafId) {
     cancelAnimationFrame(rafId);
     scheduled = false;
     rafId = null;
   }
+  renderQueue.set(container, renderFn);
   flushRender();
 }
 

@@ -1,4 +1,4 @@
-const Helper = {
+const helpers = {
   // Remove trailing slash from a path
   removeEndSlash(path) {
     if (path.length > 1 && path.endsWith("/")) {

@@ -250,12 +250,69 @@ export class Router {
 
   init() {
     this.routeNavigator();
+    // Preload routes on idle for better performance
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(() => this.preloadRoutes());
+    } else {
+      setTimeout(() => this.preloadRoutes(), 0);
+    }
+  }
+
+  // Preload route components for faster navigation
+  preloadNextRoute(currentRoute) {
+    if (typeof requestIdleCallback === 'undefined') return;
+
+    requestIdleCallback(() => {
+      const routeKeys = Object.keys(this.routes);
+      const currentIndex = routeKeys.indexOf(currentRoute);
+      const nextRoute = routeKeys[currentIndex + 1];
+
+      if (nextRoute && this.routes[nextRoute]?.component) {
+        const comp = this.routes[nextRoute].component;
+        if (typeof comp === 'function') {
+          try {
+            comp(); // Trigger lazy load
+          } catch (e) {
+            // Ignore errors in preload
+          }
+        }
+      }
+    });
+  }
+
+  // Preload all routes in background
+  preloadRoutes() {
+    if (typeof requestIdleCallback === 'undefined') return;
+
+    Object.values(this.routes).forEach(routeObj => {
+      if (routeObj?.component && typeof routeObj.component === 'function') {
+        requestIdleCallback(() => {
+          try {
+            routeObj.component(); // Trigger lazy load
+          } catch (e) {
+            // Ignore errors in preload
+          }
+        });
+      }
+    });
   }
 
   async route(route = null, component = null) {
     try {
-      babloApp.appState.clear();
-      babloApp.appState.clear();
+      // Only clear component-specific state, preserve global app state
+      // This prevents state loss on navigation
+      const currentComponentId = babloApp.appState.get("render-component-index");
+      if (currentComponentId) {
+        // Clean up only the current component's state
+        const keysToDelete = [];
+        for (const key of babloApp.appState.keys()) {
+          if (key.startsWith(`state-${currentComponentId}-`) ||
+            key.startsWith(`effect-${currentComponentId}-`)) {
+            keysToDelete.push(key);
+          }
+        }
+        keysToDelete.forEach(key => babloApp.appState.delete(key));
+      }
 
       let cleanRoute = route;
       if (!route) {
@@ -323,10 +380,15 @@ export class Router {
           component = routeObj.component;
         }
 
-        if (babloApp.componentState.has("component-state")) {
-          babloApp.componentState.delete("component-state");
-        }
+        // Store component with unique ID for proper state tracking
+        const componentId = `comp-${cleanRoute.replace(/\//g, '-').replace(/^-|-$/g, '') || 'root'}-${component.name || 'anonymous'}`;
         babloApp.componentState.set("component-state", component);
+        babloApp.componentState.set("component-id", componentId);
+
+        // Preload next route if available (performance optimization)
+        this.preloadNextRoute(cleanRoute);
+
+        babloApp.updateLocation();
         render(component, babloApp.root);
         return;
       }
