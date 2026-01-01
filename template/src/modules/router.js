@@ -3,6 +3,7 @@ import { render } from "./bablo.js";
 import { babloApp } from "./BabloApp.js";
 import { A, Button, Div, H1, P, Strong } from "./html.js";
 import { requests } from "./requests.js";
+import { importView } from "./component.js";
 
 const notFound = () => {
   return Div(
@@ -209,8 +210,76 @@ function setPageProps(routeObj) {
 
 
 export class Router {
-  constructor() {
+  constructor(routes = {}) {
+    this.routes = routes;
+  }
+
+  // Route definition and navigation method
+  // When called with 2-3 arguments (path, component, meta), it adds a route definition
+  // When called with 0-1 arguments, it navigates to a route
+  // Supports multiple component formats:
+  // - importView("Home") - lazy loading function that returns Promise
+  // - Home - direct component reference (function)
+  // - Home() - component call result (VNode wrapped in function)
+  route(routePath, component, meta) {
+    // If called with routePath and component (meta is optional), add route definition
+    if (routePath !== undefined && component !== undefined) {
+      // Normalize component to handle different formats
+      let normalizedComponent = component;
+      
+      // If component is not a function, it might be a VNode from Home()
+      // Wrap it in a function that returns the VNode
+      if (typeof component !== "function") {
+        // Check if it looks like a VNode (has type property)
+        if (component && typeof component === "object" && component.type) {
+          // Case 3: Home() - VNode result wrapped in a function
+          // Note: This creates a static VNode, so hooks/state won't work
+          // For dynamic components, use Home (function) instead
+          normalizedComponent = () => component;
+        } else {
+          // Unknown format, try to use as-is
+          normalizedComponent = component;
+        }
+      }
+      // If component is a function, use it directly (cases 1 & 2)
+      // The _route method will handle Promise detection for lazy loading
+      
+      this.routes[routePath] = {
+        component: normalizedComponent,
+        meta: meta || {},
+      };
+      return this;
+    }
+    // Otherwise, navigate (delegate to internal _route method)
+    // Note: This returns a Promise, so caller should await if needed
+    return this._route(routePath, component);
+  }
+
+  // Get all routes
+  all() {
+    return this.routes;
+  }
+
+  // Get a specific route
+  get(route) {
+    return this.routes[route];
+  }
+
+  // Check if route exists
+  has(route) {
+    return this.routes[route] !== undefined;
+  }
+
+  // Remove a route
+  remove(route) {
+    delete this.routes[route];
+    return this;
+  }
+
+  // Clear all routes
+  clear() {
     this.routes = {};
+    return this;
   }
 
   async go(route) {
@@ -229,7 +298,7 @@ export class Router {
     // Dispatch custom event for route change
     window.dispatchEvent(new CustomEvent('routechange', { detail: { route: newRoute } }));
 
-    await this.route(newRoute);
+      await this._route(newRoute);
     return newRoute;
   }
   async redirectHard(route) {
@@ -297,7 +366,7 @@ export class Router {
     });
   }
 
-  async route(route = null, component = null) {
+  async _route(route = null, component = null) {
     try {
       // Only clear component-specific state, preserve global app state
       // This prevents state loss on navigation
@@ -358,26 +427,49 @@ export class Router {
         setPageProps(routeObj);
         let component;
 
-        // Handle both lazy loading and direct imports
+        // Handle multiple component formats:
+        // 1. importView("Home") - returns function that returns Promise (lazy loading)
+        // 2. Home - direct component reference (function)
+        // 3. Home() - component function call result (wrapped in function by route() method)
         if (typeof routeObj.component === "function") {
           // Store the original function in case we need it
           const componentFn = routeObj.component;
 
-          // Try calling it to check if it returns a Promise (lazy loading)
-          const result = componentFn();
+          // Check if it's a lazy loader by examining the function's string representation
+          // Lazy loaders from importView() have a specific pattern: () => import(...)
+          const fnString = componentFn.toString();
+          const isLazyLoader = fnString.includes('import(') && fnString.trim().startsWith('()');
 
-          if (result && typeof result.then === "function") {
-            // Lazy loading: result is a Promise
-            const module = await result;
-            component = module.default || module;
+          if (isLazyLoader) {
+            // Case 1: Lazy loading - call it to get the Promise
+            try {
+              const result = componentFn();
+              if (result && typeof result.then === "function") {
+                const module = await result;
+                component = module.default || module;
+              } else {
+                // Fallback: treat as direct component
+                component = componentFn;
+              }
+            } catch (error) {
+              // If calling fails, treat as direct component
+              component = componentFn;
+            }
           } else {
-            // Direct import: the function itself is the component
-            // (we called it and got a VNode, but render needs the function)
+            // Case 2 or 3: Direct component or wrapped VNode
+            // Don't call it here - it might use hooks and needs render context
+            // Just use the function directly, render() will call it at the right time
             component = componentFn;
           }
         } else {
-          // Component is already the function itself
-          component = routeObj.component;
+          // Component is not a function - this should have been wrapped in route() method
+          // But handle it as a fallback
+          if (routeObj.component && typeof routeObj.component === "object" && routeObj.component.type) {
+            // It's a VNode - wrap it in a function
+            component = () => routeObj.component;
+          } else {
+            component = routeObj.component;
+          }
         }
 
         // Store component with unique ID for proper state tracking
@@ -444,6 +536,3 @@ export class Router {
   }
 }
 
-// Export a default router instance for convenience
-// This will be configured in main.js with routes
-export const router = new Router();

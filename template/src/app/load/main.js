@@ -1,20 +1,28 @@
 
 
-import { documentEvents } from "../../_modules/document.events.js";
-import { babloApp } from "../../_modules/BabloApp.js";
+import { documentEvents } from "../../modules/document.events.js";
+import { babloApp } from "../../modules/BabloApp.js";
 import Config from "../config/config.js";
-import { router } from "../../_modules/router.js";
-import routes from "../routes/routes.js";
+import { Router } from "../../modules/router.js";
+import Home from "../../views/Home.js";
 
+const app = babloApp;
+app.init(Config);
+app.root = document.getElementById("app");
 
 documentEvents.onDomContentLoaded(async () => {
-  // Initialize the application
-  const app = babloApp;
-  app.init(Config);
-  app.routes = routes.all();
-  app.root = document.getElementById("app");
-
-  // Initialize the router
+  // Create router instance
+  const router = new Router();
+  // Initialize router (sets up event listeners)
   router.init();
-  router.route();
+  router.route("/",
+    Home,
+    {
+      title: "BABLOjS - Modern Vanilla JavaScript SPA Framework | Build Fast SPAs Without Build Tools",
+      description: "Build modern Single Page Applications with BABLOjS - a lightweight, fast, and scalable vanilla JavaScript framework. Features Virtual DOM, hooks, routing, and component-based architecture. No build step required, just deploy!",
+      keywords: "BABLOjS, vanilla JavaScript framework, SPA framework, JavaScript SPA, virtual DOM, React alternative, lightweight framework, fast JavaScript, no build tools, component framework, hooks JavaScript, routing JavaScript, vanilla JS framework",
+    }
+  );
+  app.routes = router.routes;
+  await router.route();
 });

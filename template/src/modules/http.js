@@ -1,5 +1,5 @@
 /**
- * BabloHttp - A powerful, feature-rich HTTP client library for BabloJS
+ * HTTP Client - A powerful, feature-rich HTTP client library for BabloJS
  * Better than axios with advanced features and improved performance.
  * 
  * Features:
@@ -14,7 +14,7 @@
  * - Instance-based client creation
  * - Default configuration
  * 
- * @module babloHttp
+ * @module http
  */
 
 /**
@@ -134,9 +134,9 @@ function getAllHeaders(xhr) {
 }
 
 /**
- * BabloHttp Client Class
+ * HTTP Client Class
  */
-class BabloHttpClient {
+class HttpClient {
   constructor(config = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.interceptors = {
@@ -593,25 +593,25 @@ class BabloHttpClient {
 }
 
 /**
- * Create a new BabloHttp client instance
+ * Create a new HTTP client instance
  * @param {Object} config - Default configuration
- * @returns {BabloHttpClient} - BabloHttp client instance
+ * @returns {HttpClient} - HTTP client instance
  */
-export function createBabloHttp(config = {}) {
-  return new BabloHttpClient(config);
+export function createClient(config = {}) {
+  return new HttpClient(config);
 }
 
 /**
- * Default BabloHttp client instance
+ * Default HTTP client instance
  */
-const defaultClient = new BabloHttpClient();
+const defaultClient = new HttpClient();
 
 /**
  * Request function (backward compatible)
  * @param {Object} config - Request configuration
  * @returns {Promise<Object>} - Response object (returns data directly for backward compatibility)
  */
-export async function babloRequest(config) {
+export async function request(config) {
   const response = await defaultClient.request(config);
   // Return data directly for backward compatibility
   return response.data !== undefined ? response.data : response;
@@ -620,7 +620,7 @@ export async function babloRequest(config) {
 /**
  * Export convenience methods from default client
  */
-export const babloHttp = {
+export const http = {
   request: (config) => defaultClient.request(config),
   get: (url, config) => defaultClient.get(url, config).then(r => r.data),
   post: (url, data, config) => defaultClient.post(url, data, config).then(r => r.data),
@@ -629,7 +629,7 @@ export const babloHttp = {
   delete: (url, config) => defaultClient.delete(url, config).then(r => r.data),
   head: (url, config) => defaultClient.head(url, config).then(r => r.data),
   options: (url, config) => defaultClient.options(url, config).then(r => r.data),
-  create: createBabloHttp,
+  create: createClient,
   interceptRequest: (fulfilled, rejected) => defaultClient.interceptRequest(fulfilled, rejected),
   interceptResponse: (fulfilled, rejected) => defaultClient.interceptResponse(fulfilled, rejected),
   ejectInterceptor: (type, id) => defaultClient.ejectInterceptor(type, id),
@@ -639,7 +639,12 @@ export const babloHttp = {
 };
 
 /**
- * Export default BabloHttp client instance
+ * Export as 'client' for convenience
  */
-export default babloHttp;
+export const client = http;
+
+/**
+ * Export default HTTP client instance
+ */
+export default http;
 

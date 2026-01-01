@@ -1,7 +1,7 @@
-import { babloApp } from "../_modules/BabloApp.js";
-import { useState } from "../_modules/hooks.js";
-import { Button, Div, H1, H2, P, Section, Span, Footer, A } from "../_modules/html.js";
-import { requests } from "../_modules/requests.js";
+import { babloApp } from "../modules/BabloApp.js";
+import { useState } from "../modules/hooks.js";
+import { Button, Div, H1, H2, P, Section, Span, Footer, A } from "../modules/html.js";
+import { requests } from "../modules/requests.js";
 
 function Home() {
   const [count, setCount] = useState(0);

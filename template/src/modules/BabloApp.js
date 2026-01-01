@@ -5,7 +5,7 @@ class BabloApp {
     constructor() {
         // Core properties
         this.root = null;
-        this.version = "1.0.0";
+        this.version = "2.0.0-ultra";
 
         // Optimized baseUrl initialization with fallback
         const baseTag = document.querySelector("base");

@@ -1,4 +1,4 @@
-import Config from "../config/config.js";
+import Config from "../app/config/config.js";
 
 // Link css dynamically to the document head
 export function LinkCSS(url) {
@@ -32,9 +32,8 @@ export function AddStyle(stylesArray) {
       // Regular styles
       styleText += `${styleObj.selector} {\n`;
       for (let property in styleObj.styles) {
-        styleText += `  ${toKebabCase(property)}: ${
-          styleObj.styles[property]
-        };\n`;
+        styleText += `  ${toKebabCase(property)}: ${styleObj.styles[property]
+          };\n`;
       }
       styleText += "}\n";
 
@@ -101,9 +100,8 @@ export function AddStyle(stylesArray) {
         if (styleObj[pseudoClass]) {
           styleText += `${styleObj.selector}:${pseudoClass} {\n`;
           for (let property in styleObj[pseudoClass]) {
-            styleText += `  ${toKebabCase(property)}: ${
-              styleObj[pseudoClass][property]
-            };\n`;
+            styleText += `  ${toKebabCase(property)}: ${styleObj[pseudoClass][property]
+              };\n`;
           }
           styleText += "}\n";
         }
@@ -115,9 +113,8 @@ export function AddStyle(stylesArray) {
           styleText += `@media screen and (${query.condition}) {\n`;
           styleText += `  ${styleObj.selector} {\n`;
           for (let property in query.styles) {
-            styleText += `    ${toKebabCase(property)}: ${
-              query.styles[property]
-            };\n`;
+            styleText += `    ${toKebabCase(property)}: ${query.styles[property]
+              };\n`;
           }
           styleText += "  }\n";
           styleText += "}\n";
@@ -132,9 +129,8 @@ export function AddStyle(stylesArray) {
           for (let key in keyframe) {
             styleText += `  ${key} {\n`;
             for (let property in keyframe[key]) {
-              styleText += `    ${toKebabCase(property)}: ${
-                keyframe[key][property]
-              };\n`;
+              styleText += `    ${toKebabCase(property)}: ${keyframe[key][property]
+                };\n`;
             }
             styleText += "  }\n";
           }
@@ -148,9 +144,8 @@ export function AddStyle(stylesArray) {
           styleText += `${atRule} {\n`;
           let atRuleStyles = styleObj.atRules[atRule];
           for (let property in atRuleStyles) {
-            styleText += `  ${toKebabCase(property)}: ${
-              atRuleStyles[property]
-            };\n`;
+            styleText += `  ${toKebabCase(property)}: ${atRuleStyles[property]
+              };\n`;
           }
           styleText += "}\n";
         }
